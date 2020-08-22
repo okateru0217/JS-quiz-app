@@ -1,0 +1,10 @@
+.question-border{
+    border-top: solid 1px gray;
+    border-bottom: solid 1px gray;
+    max-width: 1700px;
+}
+
+button{
+    display: block;
+    margin-top: 5px;
+}
