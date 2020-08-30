@@ -38,85 +38,79 @@ class Quiz {
   constructor(quizDataResult) {
     this.quizDataResult = quizDataResult;
   }
-  resultQuizData(){
-    return this.quizDataResult;
+  // 問題を設置
+  setUpQuiz() {
+    questionNumber.textContent = `問題${questionNumberCount}`;
+    genre.textContent = `【ジャンル】${this.quizDataResult[quizNumber].category}`;
+    difficultyLevel.textContent = `【難易度】${this.quizDataResult[quizNumber].difficulty}`;
+    question.textContent = this.quizDataResult[quizNumber].question;
+    innerAnswerButton.style.display = 'block';
+  }
+  // 回答を設置
+  setUpAnswer() { 
+    // 回答を配列に格納
+    const quizDatas = this.quizDataResult[quizNumber];
+    const incorrectAnswers = quizDatas.incorrect_answers;
+    const questionArray = [
+      incorrectAnswers[0],
+      incorrectAnswers[1],
+      incorrectAnswers[2],
+      quizDatas.correct_answer
+    ];
+      
+    // ランダムで取り出した後にもう一度、配列に格納
+    for (let i = questionArray.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = questionArray[i];
+      questionArray[i] = questionArray[j];
+      questionArray[j] = tmp;
+    } 
+    const questionRandomArray = [questionArray];
+      
+    // 回答を回答ボタンにセット
+    for (let i = 0; i < answerButton.length; i++) {
+      answerButton[i].textContent = questionRandomArray[0][i];
+    }
+  }
+  // 回答ボタン押下時の処理
+  clickHandler(quiz) {
+    for (let i = 0; i < answerButton.length; i++) {
+      answerButton[i].addEventListener('click', () => {
+        // 正解を選ぶとスコアが＋１される
+        if (answerButton[i].textContent === this.quizDataResult[quizNumber].correct_answer) {
+            score++;
+          }
+        // 問題数の管理
+        questionNumberCount++;
+        quizNumber++;
+        if (quizNumber < this.quizDataResult.length) {
+          this.setUpQuiz();
+          this.setUpAnswer();
+        } else {
+          questionNumber.textContent = `あなたの正解数は${score}問です！！`;
+          question.textContent = '再度チャレンジしたい場合は以下をクリック！！';
+          genre.style.display = 'none';
+          difficultyLevel.style.display = 'none';
+          innerAnswerButton.style.display = 'none';
+          returnHome(quiz);
+        }
+      });
+    }
   }
 }
 
-// apiを取得
+// apiを取得、クイズを設置
 const callQuizData = async () => {
   const res = await fetch('https://opentdb.com/api.php?amount=10&type=multiple');
   const quizData = await res.json();
   const quiz = new Quiz(quizData.results);
-  setUpQuiz(quiz.resultQuizData());
-  setUpAnswer(quiz.resultQuizData());
-  clickHandler(quiz.resultQuizData());
-}
-
-// 問題を設置
-const setUpQuiz = (quizDataResults) => {
-  questionNumber.textContent = `問題${questionNumberCount}`;
-  genre.textContent = `【ジャンル】${quizDataResults[quizNumber].category}`;
-  difficultyLevel.textContent = `【難易度】${quizDataResults[quizNumber].difficulty}`;
-  question.textContent = quizDataResults[quizNumber].question;
-  innerAnswerButton.style.display = 'block';
-}
-    
-// 回答を設置
-const setUpAnswer = (quizDataResults) => { 
-  // 回答を配列に格納
-  const quizDatas = quizDataResults[quizNumber];
-  const incorrectAnswers = quizDatas.incorrect_answers;
-  const questionArray = [
-    incorrectAnswers[0],
-    incorrectAnswers[1],
-    incorrectAnswers[2],
-    quizDatas.correct_answer
-  ];
-    
-  // ランダムで取り出した後にもう一度、配列に格納
-  for(i = questionArray.length - 1; i > 0; i--) {
-    var j = Math.floor(Math.random() * (i + 1));
-    var tmp = questionArray[i];
-    questionArray[i] = questionArray[j];
-    questionArray[j] = tmp;
-  } 
-  const questionRandomArray = [questionArray];
-    
-  // 回答を回答ボタンにセット
-  for (let i = 0; i < answerButton.length; i++) {
-    answerButton[i].textContent = questionRandomArray[0][i];
-  }
-}
-
-// 回答ボタン押下時の処理
-const clickHandler = (quizDataResults) => {
-for (let i = 0; i < answerButton.length; i++) {
-  answerButton[i].addEventListener('click', () => {
-    // 正解を選ぶとスコアが＋１される
-    if (answerButton[i].textContent === quizDataResults[quizNumber].correct_answer){
-        score++;
-      }
-    // 問題数の管理
-    questionNumberCount++;
-    quizNumber++;
-    if (quizNumber < quizDataResults.length) {
-      setUpQuiz(quizDataResults);
-      setUpAnswer(quizDataResults);
-    } else {
-      questionNumber.textContent = `あなたの正解数は${score}問です！！`;
-      question.textContent = '再度チャレンジしたい場合は以下をクリック！！';
-      genre.style.display = 'none';
-      difficultyLevel.style.display = 'none';
-      innerAnswerButton.style.display = 'none';
-      returnHome(quizDataResults);
-      }
-    });
-  }
+  quiz.setUpQuiz();
+  quiz.setUpAnswer();
+  quiz.clickHandler(quiz);
 }
 
 // ホームへ戻るボタンの実装
-const returnHome = (quizDataResults) => {
+const returnHome = (quiz) => {
   // ホームへ戻るボタンの生成
   const challengeAgain = document.getElementById('challenge_again_btn');
   const challengeAgainButton = document.createElement('button');
@@ -131,6 +125,6 @@ const returnHome = (quizDataResults) => {
     score = 0;
     genre.style.display = 'block';
     difficultyLevel.style.display = 'block';
-    setUpQuiz(quizDataResults);
+    quiz.setUpQuiz();
   })
 }
