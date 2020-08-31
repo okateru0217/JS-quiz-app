@@ -47,21 +47,15 @@ class Quiz {
     innerAnswerButton.style.display = 'block';
   }
   // 回答を設置
-  setUpAnswer() { 
+  setUpAnswer() {
     // 回答を配列に格納
-    const quizDatas = this.quizDataResult[quizNumber];
-    const incorrectAnswers = quizDatas.incorrect_answers;
-    const questionArray = [
-      incorrectAnswers[0],
-      incorrectAnswers[1],
-      incorrectAnswers[2],
-      quizDatas.correct_answer
-    ];
+    const quizDataAll = this.quizDataResult[quizNumber];
+    const questionArray = [...quizDataAll.incorrect_answers, quizDataAll.correct_answer];
       
     // ランダムで取り出した後にもう一度、配列に格納
     for (let i = questionArray.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var tmp = questionArray[i];
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = questionArray[i];
       questionArray[i] = questionArray[j];
       questionArray[j] = tmp;
     } 
